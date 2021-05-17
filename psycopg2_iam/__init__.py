@@ -32,6 +32,8 @@ class IAMConnection(psycopg2.extensions.connection):
 
             dsn = psycopg2.extensions.make_dsn(**parsed)
 
+        logger.debug(f"Connecting with dsn: {dsn}")
+
         super().__init__(dsn, *more)
 
     def _get_bundle_cert(self):
@@ -39,7 +41,7 @@ class IAMConnection(psycopg2.extensions.connection):
         import hashlib
 
         bundle_path = join(tempfile.gettempdir(), "rds-bundle.crt")
-        logger.debug(f"Fetching bundle certificate: {bundle_path}")
+        logger.debug(f"Fetching bundle certificate")
 
         if not isfile(bundle_path):
             url = "https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem"
@@ -50,11 +52,14 @@ class IAMConnection(psycopg2.extensions.connection):
                 dest.write(bundle)
                 dest.flush()
 
+        logger.debug(f"Certificate stored: {bundle_path}")
+
         return bundle_path
 
 
 def connect(dsn=None, secret=None, cursor_factory=None, **kwargs) -> psycopg2.extensions.connection:
     if secret and not dsn:
+        logger.debug(f"Downloading secret {secret}")
         secrets = boto3.client("secretsmanager")
         db_secret = json.loads(secrets.get_secret_value(SecretId=secret).get("SecretString"))
         dsn = dsn_from_rds_secret(db_secret)
