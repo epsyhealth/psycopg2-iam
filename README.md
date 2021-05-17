@@ -2,6 +2,22 @@
 
 Custom Connection Factory class with build-in IAM authentication and SSL bundle downloader support.
 
+## Installation
+
+Add custom pypi repository to `pyproject.toml` file
+
+```
+[[tool.poetry.source]]
+url = "***REMOVED***"
+name = "fury"
+```
+
+Install package
+
+```
+poetry add psycopg2-iam
+```
+
 ## Usage
 
 ### Create connection directly from secret
