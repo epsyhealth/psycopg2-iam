@@ -1,3 +1,4 @@
+import json
 import logging
 import tempfile
 from os.path import join, isfile
@@ -36,29 +37,34 @@ class IAMConnection(psycopg2.extensions.connection):
     def _get_bundle_cert(self):
         import urllib.request
         import hashlib
-        bundle_path = join(tempfile.gettempdir(), "rds-bundle.crt")
 
-        if isfile(bundle_path):
+        bundle_path = join(tempfile.gettempdir(), "rds-bundle.crt")
+        logger.debug(f"Fetching bundle certificate: {bundle_path}")
+
+        if not isfile(bundle_path):
             url = "https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem"
             with urllib.request.urlopen(url) as source, open(bundle_path, "wb+") as dest:
                 bundle = source.read()
                 if hashlib.md5(bundle).hexdigest() != "0507597169bd025f95803b0d1713f943":
                     raise RuntimeError("Failed to download bundle certificate. Checksum failed.")
                 dest.write(bundle)
+                dest.flush()
 
         return bundle_path
 
 
-def connect(dsn=None, cursor_factory=None, **kwargs) -> psycopg2.extensions.connection:
+def connect(dsn=None, secret=None, cursor_factory=None, **kwargs) -> psycopg2.extensions.connection:
+    if secret and not dsn:
+        secrets = boto3.client("secretsmanager")
+        db_secret = json.loads(secrets.get_secret_value(SecretId=secret).get("SecretString"))
+        dsn = dsn_from_rds_secret(db_secret)
+
     return psycopg2.connect(dsn, connection_factory=IAMConnection, cursor_factory=cursor_factory, **kwargs)
 
 
 def dsn_from_rds_secret(secret: dict) -> str:
     params = dict(
-        host=secret.get("host"),
-        port=secret.get("port"),
-        dbname=secret.get("dbname"),
-        user=secret.get("username")
+        host=secret.get("host"), port=secret.get("port"), dbname=secret.get("dbname"), user=secret.get("username")
     )
 
     if "password" in secret:
