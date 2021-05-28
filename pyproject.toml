@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "psycopg2-iam"
-version = "0.2.1"
+version = "1.0.0"
 description = ""
 authors = ["Epsy Engineering <engineering@epsyhealth.com>"]
 keywords = ["library"]
