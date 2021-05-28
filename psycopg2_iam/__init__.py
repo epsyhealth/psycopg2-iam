@@ -15,19 +15,16 @@ logger = logging.getLogger(__name__)
 class IAMConnection(ABC, psycopg2.extensions.connection):
     def __init__(self, dsn, *more):
         parsed = parse_dsn(dsn)
-        if "password" in parsed:
-            logger.warning("Provided DSN contains password, IAM authentication will be disabled.")
-        else:
-            if not all([parsed.get("host"), parsed.get("port"), parsed.get("user")]):
-                raise psycopg2.ProgrammingError("IAM connection require: host, port and username to be provided")
+        if not all([parsed.get("host"), parsed.get("port"), parsed.get("user")]):
+            raise psycopg2.ProgrammingError("IAM connection require: host, port and username to be provided")
 
-            self._set_credentials(parsed)
+        self._set_credentials(parsed)
 
-            parsed["sslmode"] = "verify-full"
-            if "sslrootcert" not in parsed:
-                parsed["sslrootcert"] = self._get_bundle_cert()
+        parsed["sslmode"] = "verify-full"
+        if "sslrootcert" not in parsed:
+            parsed["sslrootcert"] = self._get_bundle_cert()
 
-            dsn = psycopg2.extensions.make_dsn(**parsed)
+        dsn = psycopg2.extensions.make_dsn(**parsed)
 
         logger.debug(f"Connecting with dsn: {dsn}")
 
