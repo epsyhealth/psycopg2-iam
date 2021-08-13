@@ -1,16 +1,8 @@
 # psycopg2-iam
 
-Custom Connection Factory class with build-in IAM authentication and SSL bundle downloader support.
+Custom Connection Factory class (RDS, Redshift) with build-in IAM authentication and SSL bundle downloader support.
 
 ## Installation
-
-Add custom pypi repository to `pyproject.toml` file
-
-```
-[[tool.poetry.source]]
-url = "***REMOVED***"
-name = "fury"
-```
 
 Install package
 
@@ -27,8 +19,6 @@ from psycopg2_iam import connect
 conn = connect(secret="secretId")
 ```
 
-
-
 ### Using connect function 
 
 ```python
@@ -44,7 +34,6 @@ from psycopg2_iam import IAMConnection
 
 psycopg2.connect(dsn="...", connection_factory=IAMConnection)
 ```
-
 
 ### Create DSN from AWS generated RDS secret
 

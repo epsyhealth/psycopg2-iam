@@ -1,8 +1,8 @@
 import json
 import logging
 import tempfile
-from abc import abstractmethod, ABC
-from os.path import join, isfile
+from abc import ABC, abstractmethod
+from os.path import isfile, join
 
 import boto3
 import psycopg2
@@ -31,8 +31,8 @@ class IAMConnection(ABC, psycopg2.extensions.connection):
         super().__init__(dsn, *more)
 
     def _get_bundle_cert(self):
-        import urllib.request
         import hashlib
+        import urllib.request
 
         bundle_path = join(tempfile.gettempdir(), f"{self.__class__.__name__}-bundle.crt")
         logger.debug(f"Fetching bundle certificate")
@@ -82,13 +82,13 @@ class RDSIAMConnection(IAMConnection):
 
 class RedshiftConnection(IAMConnection):
     def _set_credentials(self, parsed: dict):
-        client = boto3.client('redshift')
+        client = boto3.client("redshift")
         credentials = client.get_cluster_credentials(
             DbUser=parsed["user"],
             DbName=parsed["dbname"],
             ClusterIdentifier=parsed["host"].split(".")[0],
             DurationSeconds=15 * 60,
-            AutoCreate=True
+            AutoCreate=True,
         )
         parsed["user"] = credentials.get("DbUser")
         parsed["password"] = credentials.get("DbPassword")

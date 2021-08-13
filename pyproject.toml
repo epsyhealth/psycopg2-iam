@@ -1,9 +1,22 @@
 [tool.poetry]
 name = "psycopg2-iam"
 version = "1.1.0"
-description = ""
+description = "Custom Connection Factory class (RDS, Redshift) with build-in IAM authentication and SSL bundle downloader support."
 authors = ["Epsy Engineering <engineering@epsyhealth.com>"]
-keywords = ["library"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/epsyhealth/psycopg2-iam"
+repository = "https://github.com/epsyhealth/psycopg2-iam"
+classifiers = [
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Database"
+]
+keywords = ["aws", "rds", "redshift"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
@@ -11,8 +24,9 @@ psycopg2-binary = "^2.8"
 boto3 = "^1.14"
 
 [tool.poetry.dev-dependencies]
-black = "^21.5b1"
+black = "^21.7b0"
 bump2version = "^1.0.1"
+isort = "^5.9.3"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
